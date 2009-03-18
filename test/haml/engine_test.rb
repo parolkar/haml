@@ -180,6 +180,32 @@ HAML
     assert_equal("<p>0</p>\n<p>1</p>\n<p>2</p>\n", render("- for i in (0...3)\n  %p= |\n   i |"))
   end
 
+  def test_multiline_with_colon_in_the_begining 
+    template_where_no_filter_is_used = <<END
+#progress
+  = ["1", |
+    "2", |
+    "3"].join(" | ") |
+  = "another line"
+  =  { :u => "hello", |
+    :r => "world" }[:u] |
+END
+
+    template_where_plain_filter_is_used = <<END
+#progress
+  = ["1", |
+    "2", |
+    "3"].join(" | ") |
+  = "another line"
+  :plain
+    When parolkar (github.com/parolkar) placed this , he realised that use of filter disturbs  ':' handling for multiline 
+  =  { :u => "hello", |
+    :r => "world" }[:u] |
+END
+    assert_equal("<div id='progress'>\n  1 | 2 | 3\n  another line\n  hello\n</div>\n", render(template_where_no_filter_is_used)) # This works
+    assert_equal("<div id='progress'>\n  1 | 2 | 3\n  another line\n  When parolkar (github.com/parolkar) placed this , he realised that use of filter disturbs  ':' handling for multiline\n  hello\n</div>\n", render(template_where_plain_filter_is_used))
+  end
+
   def test_cr_newline
     assert_equal("<p>foo</p>\n<p>bar</p>\n<p>baz</p>\n<p>boom</p>\n", render("%p foo\r%p bar\r\n%p baz\n\r%p boom"))
   end
